@@ -31,7 +31,10 @@
       "20.jpg": { "weight": 1, "name": "外围物品20" },
       "21.jpg": { "weight": 1, "name": "外围物品21" },
       "22.jpg": { "weight": 1, "name": "外围物品22" },
-      "23.jpg": { "weight": 1, "name": "外围物品23" }
+      "23.jpg": { "weight": 1, "name": "外围物品23" },
+      "24.jpg": { "weight": 1, "name": "外围物品24" },
+      "25.jpg": { "weight": 1, "name": "外围物品25" },
+      "26.jpg": { "weight": 1, "name": "外围物品26" }
     }
   },
   "inner": {
@@ -65,7 +68,8 @@
       "25.jpg": { "weight": 1, "name": "内围物品25", "note": "最多使用2次" },
       "26.jpg": { "weight": 1, "name": "内围物品26", "note": "最多使用2次" },
       "27.jpg": { "weight": 1, "name": "内围物品27" },
-      "28.jpg": { "weight": 1, "name": "内围物品28" }
+      "28.jpg": { "weight": 1, "name": "内围物品28" },
+      "29.jpg": { "weight": 10, "name": "内围物品29" }
     }
   }
 }

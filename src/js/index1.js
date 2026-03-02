@@ -113,7 +113,7 @@ const gridEl = document.getElementById('grid');
         // 1. 外围区域配置
         const outerConfig = {
             folder: 'images1/outer/',
-            imageCount: 27,
+            imageCount: 26,
             extension: 'jpg',
             maxUsage: 3
         };
@@ -138,7 +138,7 @@ const gridEl = document.getElementById('grid');
         // 4. 内部区域配置
         const innerConfig = {
             folder: 'images1/inner/',
-            imageCount: 28,
+            imageCount: 29,
             extension: 'jpg',
             maxUsage: 3
         };
