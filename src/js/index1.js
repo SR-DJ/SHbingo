@@ -138,7 +138,7 @@ const gridEl = document.getElementById('grid');
         // 4. 内部区域配置
         const innerConfig = {
             folder: 'images1/inner/',
-            imageCount: 29,
+            imageCount: 30,
             extension: 'jpg',
             maxUsage: 3
         };
@@ -225,6 +225,7 @@ const gridEl = document.getElementById('grid');
             'images1/inner/23.jpg': 2,
             'images1/inner/25.jpg': 1,
             'images1/inner/26.jpg': 2,
+            'images1/inner/30.jpg': 1,
             'content_C': 2,  // inner/3 对应的 contentKey
             'content_J': 2,  // inner/4 对应的 contentKey
             'content_K': 2,  // inner/5 对应的 contentKey
