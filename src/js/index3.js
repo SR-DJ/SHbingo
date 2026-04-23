@@ -144,7 +144,7 @@ const gridEl = document.getElementById('grid');
         // 4. 内部区域配置
         const innerConfig = {
             folder: 'images3/inner/',
-            imageCount: 29,
+            imageCount: 30,
             extension: 'jpg',
             maxUsage: 3
         };
