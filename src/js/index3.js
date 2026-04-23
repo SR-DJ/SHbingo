@@ -14,6 +14,12 @@ const gridEl = document.getElementById('grid');
         let gridImageKeys = [];
         let usageCount = {};
         
+        // 轮询队列：保证每张图片优先各使用一次
+        let outerRoundRobinQueue = [];
+        let outerRoundRobinIndex = 0;
+        let innerRoundRobinQueue = [];
+        let innerRoundRobinIndex = 0;
+        
         // 历史记录相关变量
         let historyRecords = [];
         let currentHistoryIndex = -1;
@@ -328,6 +334,12 @@ const gridEl = document.getElementById('grid');
                     gridImageKeys[r][c] = null;
                 }
             }
+            
+            // 初始化轮询队列：对图片列表做一次加权随机打乱，保证每张图片优先各用一次
+            outerRoundRobinQueue = weightedShuffle(outerConfig.images, 'outer');
+            outerRoundRobinIndex = 0;
+            innerRoundRobinQueue = weightedShuffle(innerConfig.images, 'inner');
+            innerRoundRobinIndex = 0;
         }
         
         // 检查是否可以在指定坐标(row, col)放置图片
@@ -448,64 +460,76 @@ const gridEl = document.getElementById('grid');
             }
         }
         
-        // 为inner格子选择图片（使用权重随机）
+        // 为inner格子选择图片（轮询优先：优先保证每张图片至少使用一次，之后循环复用）
         function selectImageForInnerCell(row, col) {
-            const images = innerConfig.images;
-            // 使用加权随机排序
-            const shuffled = weightedShuffle(images, 'inner');
+            const queueLen = innerRoundRobinQueue.length;
             
-            for (const imgName of shuffled) {
+            // 第一轮：从当前轮询位置开始，遍历整个队列，找到第一张满足条件的图片
+            for (let offset = 0; offset < queueLen; offset++) {
+                const idx = (innerRoundRobinIndex + offset) % queueLen;
+                const imgName = innerRoundRobinQueue[idx];
                 const imageKey = innerConfig.folder + imgName;
                 const contentKey = getContentKey(imageKey);
                 
                 if (canPlaceImageAtCoord(row, col, contentKey) && canUseContentKey(contentKey, 3)) {
+                    // 推进轮询指针到该图片的下一位
+                    innerRoundRobinIndex = (idx + 1) % queueLen;
                     return placeImageAtCoord(row, col, imageKey);
                 }
             }
             
-            // 如果找不到合适的，放宽使用次数限制（但邻格条件必须满足）
-            for (const imgName of shuffled) {
+            // 如果找不到合适的，放宽使用次数限制（但位置约束必须满足）
+            for (let offset = 0; offset < queueLen; offset++) {
+                const idx = (innerRoundRobinIndex + offset) % queueLen;
+                const imgName = innerRoundRobinQueue[idx];
                 const imageKey = innerConfig.folder + imgName;
                 const contentKey = getContentKey(imageKey);
                 
                 if (canPlaceImageAtCoord(row, col, contentKey)) {
                     console.warn(`inner格子(${row},${col})放宽使用次数限制: ${imageKey}`);
+                    innerRoundRobinIndex = (idx + 1) % queueLen;
                     return placeImageAtCoord(row, col, imageKey);
                 }
             }
             
-            const defaultImageKey = innerConfig.folder + shuffled[0];
+            const defaultImageKey = innerConfig.folder + innerRoundRobinQueue[innerRoundRobinIndex % queueLen];
             console.error(`inner格子(${row},${col})无法找到合适图片，使用默认: ${defaultImageKey}`);
             return placeImageAtCoord(row, col, defaultImageKey);
         }
         
-        // 为outer格子选择图片（使用权重随机）
+        // 为outer格子选择图片（轮询优先：优先保证每张图片至少使用一次，之后循环复用）
         function selectImageForOuterCell(row, col) {
-            const images = outerConfig.images;
-            // 使用加权随机排序
-            const shuffled = weightedShuffle(images, 'outer');
+            const queueLen = outerRoundRobinQueue.length;
             
-            for (const imgName of shuffled) {
+            // 第一轮：从当前轮询位置开始，遍历整个队列，找到第一张满足条件的图片
+            for (let offset = 0; offset < queueLen; offset++) {
+                const idx = (outerRoundRobinIndex + offset) % queueLen;
+                const imgName = outerRoundRobinQueue[idx];
                 const imageKey = outerConfig.folder + imgName;
                 const contentKey = getContentKey(imageKey);
                 
                 if (canPlaceImageAtCoord(row, col, contentKey) && canUseContentKey(contentKey, 3)) {
+                    // 推进轮询指针到该图片的下一位
+                    outerRoundRobinIndex = (idx + 1) % queueLen;
                     return placeImageAtCoord(row, col, imageKey);
                 }
             }
             
-            // 如果找不到合适的，放宽使用次数限制
-            for (const imgName of shuffled) {
+            // 如果找不到合适的，放宽使用次数限制（但位置约束必须满足）
+            for (let offset = 0; offset < queueLen; offset++) {
+                const idx = (outerRoundRobinIndex + offset) % queueLen;
+                const imgName = outerRoundRobinQueue[idx];
                 const imageKey = outerConfig.folder + imgName;
                 const contentKey = getContentKey(imageKey);
                 
                 if (canPlaceImageAtCoord(row, col, contentKey)) {
                     console.warn(`outer格子(${row},${col})放宽使用次数限制: ${imageKey}`);
+                    outerRoundRobinIndex = (idx + 1) % queueLen;
                     return placeImageAtCoord(row, col, imageKey);
                 }
             }
             
-            const defaultImageKey = outerConfig.folder + shuffled[0];
+            const defaultImageKey = outerConfig.folder + outerRoundRobinQueue[outerRoundRobinIndex % queueLen];
             console.error(`outer格子(${row},${col})无法找到合适图片，使用默认: ${defaultImageKey}`);
             return placeImageAtCoord(row, col, defaultImageKey);
         }
